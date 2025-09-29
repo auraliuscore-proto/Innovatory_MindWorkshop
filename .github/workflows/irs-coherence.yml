@@ -1,0 +1,36 @@
+name: IRS Coherence
+
+on:
+  push:
+    paths:
+      - "Sandbox/IRS/**"
+      - ".github/workflows/irs-coherence.yml"
+      - "requirements.txt"
+  workflow_dispatch:
+
+jobs:
+  run-irs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install requirements
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run IRS Φ-coherence
+        run: |
+          python Sandbox/IRS/IRS_phi_coherence.py
+
+      - name: Upload artifact (plots)
+        uses: actions/upload-artifact@v4
+        with:
+          name: IRS-phi-coherence
+          path: out/IRS/irs_phi_coherence.png
