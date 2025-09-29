@@ -3,7 +3,11 @@ name: IRS Coherence
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * 1"   # co poniedziałek 5:00 UTC
+    - cron: "0 5 * * 1"   # co poniedziałek 05:00 UTC
+
+# 👇 daje tokenowi prawo do zapisu w repo
+permissions:
+  contents: write
 
 jobs:
   run-irs:
@@ -13,6 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          # ten token będzie miał uprawnienia zgodne z 'permissions:' powyżej
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
@@ -29,11 +34,22 @@ jobs:
         run: |
           python Sandbox/IRS/IRS_phi_coherence.py
 
-      - name: Commit and push reports
+      - name: Commit and push reports (if changed)
+        shell: bash
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add Public/reports/*.png Public/reports/*.json
-          git commit -m "Automatyczny raport IRS Φ-coherence [$(date +'%Y-%m-%d')]"
-          git push
+          git config user.name "innowatorium-bot"
+          git config user.email "innowatorium-bot@users.noreply.github.com"
+
+          # Dodaj bezpiecznie cały katalog raportów (nie wywali się gdy brak plików)
+          git add -A Public/reports/
+
+          # Commit tylko jeśli coś się zmieniło
+          if ! git diff --cached --quiet; then
+            git commit -m "Automatyczny raport IRS Φ-coherence [$(date +'%Y-%m-%d')]"
+            git push
+            echo "✅ Zmiany zacommitowane i wypchnięte."
+          else
+            echo "ℹ️ Brak zmian — nic do commitowania."
+          fi
+
 
