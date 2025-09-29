@@ -37,40 +37,34 @@ jobs:
       - name: Run IRS Φ-coherence
         run: python Sandbox/IRS/IRS_phi_coherence.py
 
-      - name: Rebase onto latest main (avoid non-fast-forward)
+      - name: Commit, rebase and push reports (safe)
+        shell: bash
         run: |
+          set -e
+          git config user.name  "innowatorium-bot"
+          git config user.email "innowatorium-bot@users.noreply.github.com"
+
+          # 1) dodaj zmiany i zrób commit, jeśli są
+          git add -A Public/reports/ || true
+          if git diff --cached --quiet; then
+            echo "ℹ️ Brak zmian — nic do commitowania."
+            exit 0
+          fi
+          git commit -m "Automatyczny raport IRS Φ-coherence [$(date +'%Y-%m-%d')]"
+
+          # 2) teraz dopiero dociągnij najnowszy main z rebase
           git fetch origin main
           git pull --rebase origin main
 
-- name: Commit, rebase and push reports (safe)
-  shell: bash
-  run: |
-    set -e
-    git config user.name  "innowatorium-bot"
-    git config user.email "innowatorium-bot@users.noreply.github.com"
-
-    # 1) dodaj i ewentualnie commit
-    git add -A Public/reports/ || true
-    if git diff --cached --quiet; then
-      echo "ℹ️ Brak zmian — nic do commitowania."
-      exit 0
-    fi
-    git commit -m "Automatyczny raport IRS Φ-coherence [$(date +'%Y-%m-%d')]"
-
-    # 2) dopiero teraz wciągnij najnowszy main (rebase)
-    git fetch origin main
-    git pull --rebase origin main
-
-    # 3) push z retry
-    for i in 1 2 3; do
-      if git push origin HEAD:main; then
-        echo "✅ Wypchnięto raport."
-        break
-      else
-        echo "⚠️ Push odrzucony. Rebase i ponowna próba..."
-        git fetch origin main
-        git pull --rebase origin main
-        sleep 2
-      fi
-    done
-
+          # 3) push z prostym retry (na wypadek wyścigu)
+          for i in 1 2 3; do
+            if git push origin HEAD:main; then
+              echo "✅ Wypchnięto raport."
+              break
+            else
+              echo "⚠️ Push odrzucony. Rebase i ponowna próba..."
+              git fetch origin main
+              git pull --rebase origin main
+              sleep 2
+            fi
+          done
