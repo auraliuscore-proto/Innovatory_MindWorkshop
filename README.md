@@ -8,3 +8,7 @@
   **Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)**.
 
 Szczegóły znajdziesz w plikach [LICENSE](./LICENSE) i [LICENSE-docs](./LICENSE-docs).
+
+## 📚 Manifesty
+Podstawowe założenia projektu i metryki są opisane w folderze [`manifesty/`](./manifesty/00_INDEX.md).
+
