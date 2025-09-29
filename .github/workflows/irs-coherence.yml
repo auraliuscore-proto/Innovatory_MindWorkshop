@@ -17,8 +17,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # ten token będzie miał uprawnienia zgodne z 'permissions:' powyżej
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0     # <-- pełna historia, pozwala rebase'ować
+
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -34,22 +35,40 @@ jobs:
         run: |
           python Sandbox/IRS/IRS_phi_coherence.py
 
-      - name: Commit and push reports (if changed)
+      - name: Commit and push reports (rebased)
         shell: bash
         run: |
-          git config user.name "innowatorium-bot"
+          set -e
+
+          # kto podpisuje commit
+          git config user.name  "innowatorium-bot"
           git config user.email "innowatorium-bot@users.noreply.github.com"
 
-          # Dodaj bezpiecznie cały katalog raportów (nie wywali się gdy brak plików)
-          git add -A Public/reports/
+          # wchłoń najnowszy main zanim dodasz cokolwiek
+          git fetch origin ${{ github.ref_name }}
+          git pull --rebase origin ${{ github.ref_name }}
 
-          # Commit tylko jeśli coś się zmieniło
-          if ! git diff --cached --quiet; then
-            git commit -m "Automatyczny raport IRS Φ-coherence [$(date +'%Y-%m-%d')]"
-            git push
-            echo "✅ Zmiany zacommitowane i wypchnięte."
-          else
+          # dodaj wygenerowane pliki (bez wywalania się gdy nic nie ma)
+          git add -A Public/reports/ || true
+
+          # commit tylko jeśli są staged changes
+          if git diff --cached --quiet; then
             echo "ℹ️ Brak zmian — nic do commitowania."
+            exit 0
           fi
 
+          git commit -m "Automatyczny raport IRS Φ-coherence [$(date +'%Y-%m-%d')]"
+
+          # push z małym retry (gdyby w międzyczasie weszły nowe zmiany)
+          for i in 1 2 3; do
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ Wypchnięto raport."
+              break
+            else
+              echo "⚠️ Push odrzucony (race). Próbuję rebase i ponownie..."
+              git fetch origin ${{ github.ref_name }}
+              git pull --rebase origin ${{ github.ref_name }}
+              sleep 2
+            fi
+          done
 
