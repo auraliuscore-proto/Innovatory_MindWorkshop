@@ -1,0 +1,9 @@
+# 📚 Manifesty Innowatorium (spis treści)
+> Dokumenty objęte licencją **CC BY-SA 4.0** (kod w repo: **GPL v3**).
+
+- **Φ_CORE — Rdzeń pojęć i metryk** → [01_Phi_CORE.md](./01_Phi_CORE.md)
+- **IRS — Inteligentny Rezonans Strumieniowy** → [IRS.md](./IRS.md)
+- **Etyka & Prywatność** → [03_Ethics_Privacy.md](./03_Ethics_Privacy.md)
+- **Roadmap (M0–M3)** → [05_Roadmap.md](./05_Roadmap.md)
+
+> Manifesty definiują wspólny język, zasady gry i kierunek rozwoju. Aktualizujemy je PR-ami.
