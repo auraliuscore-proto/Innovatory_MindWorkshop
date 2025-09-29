@@ -1,19 +1,19 @@
 name: IRS Coherence
 
 on:
-  push:
-    paths:
-      - "Sandbox/IRS/**"
-      - ".github/workflows/irs-coherence.yml"
-      - "requirements.txt"
   workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * 1"   # co poniedziałek 5:00 UTC
 
 jobs:
   run-irs:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -29,8 +29,11 @@ jobs:
         run: |
           python Sandbox/IRS/IRS_phi_coherence.py
 
-      - name: Upload artifact (plots)
-        uses: actions/upload-artifact@v4
-        with:
-          name: IRS-phi-coherence
-          path: out/IRS/irs_phi_coherence.png
+      - name: Commit and push reports
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Public/reports/*.png Public/reports/*.json
+          git commit -m "Automatyczny raport IRS Φ-coherence [$(date +'%Y-%m-%d')]"
+          git push
+
