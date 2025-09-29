@@ -1,4 +1,4 @@
-# Innowatory_MindWorkshop
+# InnoVatory_MindWorkshop
 ---
 
 ## 📜 Licencja
