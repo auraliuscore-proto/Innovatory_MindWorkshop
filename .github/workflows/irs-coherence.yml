@@ -3,9 +3,8 @@ name: IRS Coherence
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * 1"   # co poniedziałek 05:00 UTC
+    - cron: "0 5 * * 1"   # poniedziałek 05:00 UTC
 
-# 👇 daje tokenowi prawo do zapisu w repo
 permissions:
   contents: write
 
@@ -14,44 +13,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout main (full history)
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0     # <-- pełna historia, pozwala rebase'ować
-
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install requirements
+      - name: Install requirements (pinned)
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          python - <<'PY'
+          import numpy, scipy, matplotlib
+          print("OK versions:", numpy.__version__, scipy.__version__, matplotlib.__version__)
+          PY
 
       - name: Run IRS Φ-coherence
+        run: python Sandbox/IRS/IRS_phi_coherence.py
+
+      - name: Rebase onto latest main (avoid non-fast-forward)
         run: |
-          python Sandbox/IRS/IRS_phi_coherence.py
+          git fetch origin main
+          git pull --rebase origin main
 
       - name: Commit and push reports (rebased)
         shell: bash
         run: |
           set -e
-
-          # kto podpisuje commit
           git config user.name  "innowatorium-bot"
           git config user.email "innowatorium-bot@users.noreply.github.com"
 
-          # wchłoń najnowszy main zanim dodasz cokolwiek
-          git fetch origin ${{ github.ref_name }}
-          git pull --rebase origin ${{ github.ref_name }}
-
-          # dodaj wygenerowane pliki (bez wywalania się gdy nic nie ma)
+          # dodaj zmiany (nie wywali się, gdy katalog pusty)
           git add -A Public/reports/ || true
 
-          # commit tylko jeśli są staged changes
           if git diff --cached --quiet; then
             echo "ℹ️ Brak zmian — nic do commitowania."
             exit 0
@@ -59,16 +59,15 @@ jobs:
 
           git commit -m "Automatyczny raport IRS Φ-coherence [$(date +'%Y-%m-%d')]"
 
-          # push z małym retry (gdyby w międzyczasie weszły nowe zmiany)
+          # push jawnie na main + prosty retry na wyścig pushy
           for i in 1 2 3; do
-            if git push origin HEAD:${{ github.ref_name }}; then
+            if git push origin HEAD:main; then
               echo "✅ Wypchnięto raport."
               break
             else
-              echo "⚠️ Push odrzucony (race). Próbuję rebase i ponownie..."
-              git fetch origin ${{ github.ref_name }}
-              git pull --rebase origin ${{ github.ref_name }}
+              echo "⚠️ Push odrzucony (race). Rebase i ponowna próba..."
+              git fetch origin main
+              git pull --rebase origin main
               sleep 2
             fi
           done
-
