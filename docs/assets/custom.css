@@ -1,0 +1,4 @@
+/* delikatny glow pod nagłówkami */
+h1, h2 {
+  text-shadow: 0 0 12px rgba(51, 255, 204, .06);
+}
