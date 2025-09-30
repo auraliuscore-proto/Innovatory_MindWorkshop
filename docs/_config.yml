@@ -15,3 +15,10 @@ search.button: true
 
 # stopka
 footer_content: "© Innovatory MindWorkshop • Docs: CC BY-SA 4.0 • Code: GPL v3"
+
+plugins:
+  - jekyll-seo-tag
+just_the_docs:
+  favicon_ico: /assets/innowatorium-banner.svg
+  css:
+    - /assets/custom.css
