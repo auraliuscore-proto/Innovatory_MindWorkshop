@@ -13,4 +13,4 @@ nav_order: 1
 - [Glossary]({{ site.baseurl }}/manifesty/GLOSSARY.md)
 
 ## Raporty
-- [Public/reports](Innovatory_MindWorkshop/Public/reports/) — automatyczne wyniki (PNG, JSON)
+- [Public/reports]({{ site.baseurl }}/Public/reports/) — automatyczne wyniki (PNG, JSON)
