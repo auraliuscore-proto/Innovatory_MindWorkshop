@@ -4,6 +4,7 @@ title: Strona główna
 nav_order: 1
 ---
 
+
 # 🌀 Innovatory MindWorkshop
 
 ![baner]({{ site.baseurl }}/assets/innowatorium-banner.svg)
