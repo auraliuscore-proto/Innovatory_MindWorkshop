@@ -1,4 +1,4 @@
-# 📚 Manifesty Innowatorium — Spis treści
+# 📚 Manifesty Innovatorium — Spis treści
 > Licencja dokumentacji: **CC BY-SA 4.0**  
 > Kod źródłowy: **GPL v3**
 
