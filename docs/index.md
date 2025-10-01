@@ -14,4 +14,4 @@ nav_order: 1
 - [Glossary]({{ site.baseurl }}/manifesty/GLOSSARY.md)
 
 ## Raporty
-- [Public/reports]({{ site.baseurl }}/Public/reports/) — automatyczne wyniki (PNG, JSON)
+- [Public/reports]({{ site.baseurl }}/reports/) — automatyczne wyniki (PNG, JSON)
