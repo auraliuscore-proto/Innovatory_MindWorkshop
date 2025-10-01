@@ -1,5 +1,6 @@
 title: Innovatory MindWorkshop
 description: Sandbox badawczy — rezonanse, koherencja, rytmy. IRS.
+
 remote_theme: just-the-docs/just-the-docs
 plugins:
   - jekyll-remote-theme
@@ -7,13 +8,15 @@ plugins:
 url: https://auraliuscore-proto.github.io
 baseurl: /Innovatory_MindWorkshop
 
-logo: {{ site.baseurl }}/assets/innowatorium-banner.svg
 color_scheme: dark
+logo: /assets/innowatorium-banner.svg
 
 aux_links:
   GitHub Repo: https://github.com/auraliuscore-proto/Innovatory_MindWorkshop
   Raporty IRS (repo): https://github.com/auraliuscore-proto/Innovatory_MindWorkshop/tree/main/Public/reports
 
 search_enabled: true
-search.button: true
+search:
+  button: true
+
 footer_content: "© Innovatory MindWorkshop • Docs: CC BY-SA 4.0 • Code: GPL v3"
