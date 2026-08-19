@@ -1,0 +1,57 @@
+name: Build Q016SUP Win16
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/build-q016sup-win16.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Q016SUP source branch
+        uses: actions/checkout@v4
+        with:
+          ref: q016sup-rebuild-v01
+
+      - name: Install Open Watcom snapshot
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p "$RUNNER_TEMP/watcom"
+          curl -L --fail --retry 3 \
+            https://github.com/open-watcom/open-watcom-v2/releases/download/Current-build/owsnapshot.tar.xz \
+            -o "$RUNNER_TEMP/owsnapshot.tar.xz"
+          tar -xJf "$RUNNER_TEMP/owsnapshot.tar.xz" -C "$RUNNER_TEMP/watcom" --strip-components=1 || \
+            tar -xJf "$RUNNER_TEMP/owsnapshot.tar.xz" -C "$RUNNER_TEMP/watcom"
+          find "$RUNNER_TEMP/watcom" -maxdepth 2 \( -name wcl -o -name wcc \) -type f -print | head -20
+
+      - name: Build Q016SUP.EXE for Windows 3.x
+        shell: bash
+        run: |
+          set -euxo pipefail
+          export WATCOM="$RUNNER_TEMP/watcom"
+          export PATH="$WATCOM/binl64:$WATCOM/binl:$WATCOM/binw:$PATH"
+          export INCLUDE="$WATCOM/h:$WATCOM/h/win"
+          cd Drukarnia/Q016SUP
+          wcl -l=windows -bt=windows -ml -w4 -ox -fe=Q016SUP.EXE q016sup.c
+          ls -lah Q016SUP.EXE
+          file Q016SUP.EXE || true
+          sha256sum Q016SUP.EXE > SHA256SUMS.txt
+          printf '%s\n' \
+            'Q016SUP Replacement v0.1 - TEST Win16' \
+            '' \
+            'Kopiuj Q016SUP.EXE do C:\Q016VBS\Q016SUP.EXE.' \
+            'Uruchom przy dzialajacym WindowViewerze.' \
+            'Pierwszy test: sprawdz start okna i status DDE; nie laduj zlecenia podczas ruchu maszyny.' \
+            > README_TEST.txt
+          zip -9 Q016SUP_REPLACEMENT_v01.zip Q016SUP.EXE q016sup.c README_TEST.txt SHA256SUMS.txt
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Q016SUP_REPLACEMENT_v01
+          path: Drukarnia/Q016SUP/Q016SUP_REPLACEMENT_v01.zip
+          if-no-files-found: error
