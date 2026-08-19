@@ -5,6 +5,11 @@ on:
     branches: [ main ]
     paths:
       - '.github/workflows/build-q016sup-win16.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'Drukarnia/Q016SUP/**'
+      - '.github/workflows/build-q016sup-win16.yml'
   workflow_dispatch:
 
 jobs:
